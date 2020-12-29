@@ -39,6 +39,7 @@ $ expo start
 - [Typescript](https://www.typescriptlang.org/)
 - [Context API](https://pt-br.reactjs.org/docs/context.html)
 - [Hooks](https://pt-br.reactjs.org/docs/hooks-intro.html)
-- [Styled Components](https://styled-components.com/)
+- [React Navigation](https://reactnavigation.org/)
+- [React native paper](https://callstack.github.io/react-native-paper/index.html)
 
 - Padrões de projeto com [ESLint](https://eslint.org/), [Prettier](https://prettier.io/) e [EditorConfig](https://editorconfig.org/). Mais detalhes [clique aqui](https://www.notion.so/Padr-es-de-projeto-com-ESLint-Prettier-e-EditorConfig-0b57b47a24724c859c0cf226aa0cc3a7)
