@@ -34,14 +34,14 @@ const App: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="auto" />
-      <AppProvider>
-        <PaperProvider theme={theme}>
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <StatusBar style="auto" />
+        <AppProvider>
           <DefaultRoutes />
-        </PaperProvider>
-      </AppProvider>
-    </NavigationContainer>
+        </AppProvider>
+      </NavigationContainer>
+    </PaperProvider>
   );
 };
 
