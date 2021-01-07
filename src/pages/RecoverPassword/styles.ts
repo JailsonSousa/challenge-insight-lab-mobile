@@ -51,15 +51,7 @@ export const TextForm = styled.Text`
   color: #fff;
 `;
 
-export const LostPasswordText = styled.Text`
-  color: #fff;
-  font-size: 12px;
-  text-align: right;
-
-  font-family: RobotoSlab_Regular;
-`;
-
-export const CreateAccountText = styled.Text`
+export const GoBackText = styled.Text`
   text-align: center;
   font-family: RobotoSlab_Regular;
   color: #282828;

@@ -32,7 +32,7 @@ export const Subtitle = styled.Text`
 `;
 
 export const Form = styled.View`
-  height: 60%;
+  height: 75%;
   width: ${`${width * 0.9}px`};
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@ export const TextForm = styled.Text`
   color: #fff;
 `;
 
-export const CreateAccountText = styled.Text`
+export const GoBackText = styled.Text`
   text-align: center;
   font-family: RobotoSlab_Regular;
   color: #282828;

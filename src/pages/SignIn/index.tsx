@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, TextInput as TextInputRN } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+
+import { useAuth } from '../../hooks/auth';
 
 import {
   Wrapper,
@@ -16,9 +18,18 @@ import {
 } from './styles';
 
 const SignIn: React.FC = () => {
+  const passwordInputRef = useRef<TextInputRN>(null);
+  const { signIn } = useAuth();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleSignIn = useCallback(
+    async (userEmail, userPassword) => {
+      await signIn({ email: userEmail, password: userPassword });
+    },
+    [signIn],
+  );
 
   return (
     <Wrapper>
@@ -33,16 +44,28 @@ const SignIn: React.FC = () => {
         <Form>
           <TextForm>Acesso ao sistema</TextForm>
           <TextInput
+            autoCorrect={false}
+            autoCapitalize="none"
+            keyboardType="email-address"
             label="Email"
             value={email}
             onChangeText={text => setEmail(text)}
+            returnKeyType="next"
+            onSubmitEditing={() => {
+              passwordInputRef.current?.focus();
+            }}
           />
 
           <TextInput
+            ref={passwordInputRef}
             label="Senha secreta"
             value={password}
             onChangeText={text => setPassword(text)}
             secureTextEntry
+            returnKeyType="send"
+            onSubmitEditing={() => {
+              handleSignIn(email, password);
+            }}
           />
 
           <TouchableOpacity
@@ -53,7 +76,7 @@ const SignIn: React.FC = () => {
 
           <Button
             mode="text"
-            onPress={() => console.log('Pressed')}
+            onPress={() => handleSignIn(email, password)}
             color="#fff"
             compact
           >

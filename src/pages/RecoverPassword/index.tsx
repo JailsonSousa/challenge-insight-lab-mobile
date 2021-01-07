@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import { useAuth } from '../../hooks/auth';
 
 import {
   Wrapper,
@@ -11,14 +12,20 @@ import {
   Subtitle,
   Form,
   TextForm,
-  LostPasswordText,
-  CreateAccountText,
+  GoBackText,
 } from './styles';
 
 const RecoverPassword: React.FC = () => {
   const navigation = useNavigation();
+  const { forgotPassword } = useAuth();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const handleRecoverPassword = useCallback(
+    userEmail => {
+      forgotPassword(userEmail);
+    },
+    [forgotPassword],
+  );
 
   return (
     <Wrapper>
@@ -33,14 +40,21 @@ const RecoverPassword: React.FC = () => {
         <Form>
           <TextForm>Recuperar Senha</TextForm>
           <TextInput
+            autoCorrect={false}
+            autoCapitalize="none"
             label="Email da conta"
             value={email}
             onChangeText={text => setEmail(text)}
+            keyboardType="email-address"
+            returnKeyType="send"
+            onSubmitEditing={() => {
+              handleRecoverPassword(email);
+            }}
           />
 
           <Button
             mode="text"
-            onPress={() => console.log('Pressed')}
+            onPress={() => handleRecoverPassword(email)}
             color="#fff"
             compact
           >
@@ -48,7 +62,7 @@ const RecoverPassword: React.FC = () => {
           </Button>
         </Form>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <CreateAccountText>Voltar</CreateAccountText>
+          <GoBackText>Voltar</GoBackText>
         </TouchableOpacity>
       </Container>
     </Wrapper>
