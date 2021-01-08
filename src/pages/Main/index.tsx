@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { BottomNavigation } from 'react-native-paper';
-
 import Manifestations from '../Manifestations';
 import Notifications from '../Notifications';
 import Profile from '../Profile';
@@ -12,7 +12,17 @@ const NotificationsScreen = () => <Notifications />;
 const ProfileScreen = () => <Profile />;
 
 const Main: React.FC = () => {
-  const [index, setIndex] = React.useState(0);
+  const [index, setIndex] = useState(0);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // Hack to force refresh screen
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('Refreshed!');
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const [routes] = React.useState([
     { key: 'manifestations', title: 'Manifestações', icon: 'view-list' },
     { key: 'notifications', title: 'Notificações', icon: 'bell' },
@@ -30,6 +40,7 @@ const Main: React.FC = () => {
       navigationState={{ index, routes }}
       onIndexChange={setIndex}
       renderScene={renderScene}
+      sceneAnimationEnabled
     />
   );
 };

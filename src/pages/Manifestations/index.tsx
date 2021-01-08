@@ -1,43 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { FlatList } from 'react-native';
-import { Appbar, List, Divider } from 'react-native-paper';
+import { FlatList, SafeAreaView } from 'react-native';
+import { Appbar, List, Divider, ActivityIndicator } from 'react-native-paper';
+import {
+  useManifestation,
+  ManifestationProps,
+} from '../../hooks/manifestation';
 import Header from '../../components/Header';
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula metus in nisi aliquet dignissim. Nulla lacinia egestas leo vel pellentesque. Proin vulputate nulla non libero viverra varius.',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula metus in nisi aliquet dignissim. Nulla lacinia egestas leo vel pellentesque. Proin vulputate nulla non libero viverra varius.',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula metus in nisi aliquet dignissim. Nulla lacinia egestas leo vel pellentesque. Proin vulputate nulla non libero viverra varius.',
-  },
-];
-
 const Manifestations: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [manifestations, setManifestations] = useState<ManifestationProps[]>(
+    [] as ManifestationProps[],
+  );
   const { navigate } = useNavigation();
+  const { getAllManifestations } = useManifestation();
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const manifestationsResponse = await getAllManifestations();
+      setManifestations(manifestationsResponse);
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [getAllManifestations]);
 
   const renderItem = ({ item }) => (
     <>
       <List.Item
         left={() => <List.Icon icon="text-box-multiple" />}
-        title={item.title}
-        description={item.description}
+        title={item.recipient}
+        description={`${item.manifest_code} - ${item.dateFormatted}`}
       />
       <Divider />
     </>
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}
+      >
+        <ActivityIndicator color="#000" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <>
@@ -53,9 +62,10 @@ const Manifestations: React.FC = () => {
 
       <List.Section style={{ padding: 10 }}>
         <FlatList
-          data={DATA}
+          data={manifestations}
           renderItem={renderItem}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.uid}
+          contentContainerStyle={{ paddingBottom: 80 }}
         />
       </List.Section>
     </>

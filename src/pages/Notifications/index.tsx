@@ -1,42 +1,59 @@
-import React from 'react';
-import { FlatList } from 'react-native';
-import { Appbar, List, Divider } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { FlatList, SafeAreaView } from 'react-native';
+import { List, Divider, ActivityIndicator } from 'react-native-paper';
+import { useNotification, NotificationProps } from '../../hooks/notification';
 import Header from '../../components/Header';
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    msg: 'Manifestação registrada com sucesso.',
-    created_at: 'há 2 horas atrás',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    msg: 'Manifestação registrada com sucesso.',
-    created_at: 'há 2 horas atrás',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    msg: 'Manifestação registrada com sucesso.',
-    created_at: 'há 2 horas atrás',
-  },
-];
-
 const Notifications: React.FC = () => {
+  const { getAllNotifications } = useNotification();
+  const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationProps[]>(
+    [] as NotificationProps[],
+  );
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const notificationsResponse = await getAllNotifications();
+
+      console.log(notificationsResponse);
+      setNotifications(notificationsResponse);
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [getAllNotifications]);
+
   const renderItem = ({ item }) => (
     <>
-      <List.Item title={item.msg} description={item.created_at} />
+      <List.Item
+        title={item.message}
+        description={item.dateFormatted}
+        titleNumberOfLines={1000}
+      />
       <Divider />
     </>
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}
+      >
+        <ActivityIndicator color="#000" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <>
       <Header title="Notificações" />
       <List.Section style={{ padding: 10 }}>
         <FlatList
-          data={DATA}
+          data={notifications}
           renderItem={renderItem}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.uid}
+          contentContainerStyle={{ paddingBottom: 80 }}
         />
       </List.Section>
     </>

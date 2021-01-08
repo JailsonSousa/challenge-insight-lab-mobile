@@ -3,10 +3,13 @@ import React from 'react';
 
 import { AuthProvider } from './auth';
 import { ManifestationProvider } from './manifestation';
+import { NotificationProvider } from './notification';
 
 const AppProvider: React.FC = ({ children }) => (
   <ManifestationProvider>
-    <AuthProvider>{children}</AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </NotificationProvider>
   </ManifestationProvider>
 );
 
