@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity, TextInput as TextInputRN } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -19,7 +19,7 @@ import {
 
 const SignIn: React.FC = () => {
   const passwordInputRef = useRef<TextInputRN>(null);
-  const { signIn } = useAuth();
+  const { signIn, loadingAuth } = useAuth();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +27,8 @@ const SignIn: React.FC = () => {
   const handleSignIn = useCallback(
     async (userEmail, userPassword) => {
       await signIn({ email: userEmail, password: userPassword });
+      setEmail('');
+      setPassword('');
     },
     [signIn],
   );
@@ -79,8 +81,13 @@ const SignIn: React.FC = () => {
             onPress={() => handleSignIn(email, password)}
             color="#fff"
             compact
+            disabled={loadingAuth}
           >
-            Acessar
+            {loadingAuth ? (
+              <ActivityIndicator animating color="#fff" />
+            ) : (
+              'Acessar'
+            )}
           </Button>
         </Form>
         <TouchableOpacity onPress={() => navigation.navigate('signup')}>

@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useState, useContext } from 'react';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, database } from '../config/firebase';
+import * as RootNavigation from '../services/RootNavigation';
 
 interface SignInCredentials {
   email: string;
@@ -15,14 +16,16 @@ interface SignUpProps {
   password: string;
 }
 
-interface UserProps {
+export interface UserProps {
   uid: string;
   name: string;
+  cpf: string;
   email: string;
 }
 
 interface AuthContextData {
   user: UserProps;
+  loadingAuth: boolean;
   signIn(credentialsSignIn: SignInCredentials): Promise<void>;
   signUp(user: SignUpProps): Promise<void>;
   signOut(): void;
@@ -33,22 +36,27 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 const AuthProvider: React.FC = ({ children }: any) => {
   const [currentUser, setCurrentUser] = useState<UserProps>({} as UserProps);
+  const [loadingAuth, setLoadingAuth] = useState(false);
 
   const signIn = useCallback(async ({ email, password }) => {
+    setLoadingAuth(true);
     await auth
       .signInWithEmailAndPassword(email, password)
       .then(async res => {
-        console.log(res.user);
-
-        const user = {
-          uid: res.user?.uid,
-          name: res.user?.displayName,
-          email: res.user?.email,
-        };
-
-        await AsyncStorage.setItem('@simplifique:user', JSON.stringify(user));
-
-        setCurrentUser(user as UserProps);
+        const uid = res.user?.uid;
+        database
+          .ref()
+          .child(`users/${uid}`)
+          .once('value')
+          .then(async snapshot => {
+            const user = snapshot.val();
+            await AsyncStorage.setItem(
+              '@simplifique:user',
+              JSON.stringify(user),
+            );
+            setCurrentUser(user as UserProps);
+            RootNavigation.navigate('main');
+          });
       })
       .catch(err => {
         switch (err.code) {
@@ -105,6 +113,9 @@ const AuthProvider: React.FC = ({ children }: any) => {
             break;
           }
         }
+      })
+      .finally(() => {
+        setLoadingAuth(false);
       });
   }, []);
 
@@ -125,7 +136,17 @@ const AuthProvider: React.FC = ({ children }: any) => {
         });
       })
       .then(() => {
-        Alert.alert('Cadastro de usuário', 'Cadastro realizado com sucesso.');
+        Alert.alert(
+          'Cadastro de usuário.',
+          'O Seu cadastro foi realizado com sucesso!',
+          [
+            {
+              text: 'Ok',
+              onPress: () => RootNavigation.navigate('signin'),
+            },
+          ],
+          { cancelable: false },
+        );
       })
       .catch(err => {
         switch (err.code) {
@@ -176,6 +197,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
     await auth.signOut().then(async () => {
       await AsyncStorage.removeItem('@simplifique:user');
       setCurrentUser({} as UserProps);
+      RootNavigation.navigate('signin');
     });
   }, []);
 
@@ -204,6 +226,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
         signOut,
         forgotPassword,
         user: currentUser,
+        loadingAuth,
       }}
     >
       {children}

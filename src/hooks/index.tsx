@@ -2,9 +2,12 @@
 import React from 'react';
 
 import { AuthProvider } from './auth';
+import { ManifestationProvider } from './manifestation';
 
 const AppProvider: React.FC = ({ children }) => (
-  <AuthProvider>{children}</AuthProvider>
+  <ManifestationProvider>
+    <AuthProvider>{children}</AuthProvider>
+  </ManifestationProvider>
 );
 
 export default AppProvider;

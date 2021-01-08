@@ -10,6 +10,7 @@ import {
   RobotoSlab_500Medium,
 } from '@expo-google-fonts/roboto-slab';
 import AppLoading from 'expo-app-loading';
+import { navigationRef } from './services/RootNavigation';
 
 import DefaultRoutes from './routes';
 import AppProvider from './hooks';
@@ -35,7 +36,7 @@ const App: React.FC = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <StatusBar style="auto" />
         <AppProvider>
           <DefaultRoutes />
