@@ -15,8 +15,10 @@ export interface ManifestationProps {
 }
 
 interface ManifestationContextData {
-  getAllManifestations(): Promise<ManifestationProps[]>;
+  loadingManifestation: boolean;
+  getAllManifestations(userID: string): Promise<ManifestationProps[]>;
   createManifestation(manifestation: ManifestationProps): Promise<void>;
+  deleteManifestation(manifestationID: string): Promise<void>;
 }
 
 const ManifestationContext = createContext<ManifestationContextData>(
@@ -24,29 +26,66 @@ const ManifestationContext = createContext<ManifestationContextData>(
 );
 
 const ManifestationProvider: React.FC = ({ children }: any) => {
-  const getAllManifestations = useCallback(async () => {
-    const manifestations = await database.ref('manifestations').once('value');
-    const modifiedManifestations = Object.values(manifestations.val()).map(
-      (current: ManifestationProps) => {
-        Object.assign(current, {
-          dateFormatted: distanceToNow(current.created_at as string),
-        });
+  const [loadingManifestation, setLoadingManifestation] = useState(false);
+  const getAllManifestations = useCallback(async userID => {
+    const manifestations = await database
+      .ref()
+      .child('manifestations')
+      .orderByChild('userID')
+      .equalTo(userID)
+      .once('value');
 
-        return current;
-      },
-    );
+    if (manifestations.val()) {
+      const modifiedManifestations = Object.values(manifestations.val()).map(
+        (current: ManifestationProps) => {
+          Object.assign(current, {
+            dateFormatted: distanceToNow(current.created_at as string),
+          });
 
-    return modifiedManifestations;
+          return current;
+        },
+      );
+
+      return modifiedManifestations;
+    }
+
+    return [] as ManifestationProps[];
+  }, []);
+
+  const deleteManifestation = useCallback(manifestaionID => {
+    const deleteManifestaionPromise = database
+      .ref(`manifestations/${manifestaionID}`)
+      .remove();
+
+    const deleteNotificationPromise = database
+      .ref(`notifications/${manifestaionID}`)
+      .remove();
+
+    Promise.all([deleteManifestaionPromise, deleteNotificationPromise])
+      .then(() =>
+        Alert.alert(
+          'Operação realizada com sucesso.',
+          'Manifestação removida com sucesso!',
+        ),
+      )
+      .catch(err =>
+        Alert.alert(
+          'Ops, Ocorreu algum erro.',
+          'Aconteceu algum problema ao realizar essa operação.\nCaso o erro continue contate o suporte.',
+        ),
+      );
   }, []);
 
   const createManifestation = useCallback(
     async ({ user, recipient, message }) => {
+      setLoadingManifestation(true);
       const created_at = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
       const uid = database.ref().push().ref.key as string;
       const manifest_code = '#'.concat(uid.slice(0, 7).toUpperCase());
 
       const createNewNotification = database.ref(`notifications/${uid}`).set({
         uid,
+        userID: user.uid,
         message: `A Manifestação ${manifest_code} foi cadastrado para a instituição ${recipient} com sucesso!`,
         created_at,
       });
@@ -60,19 +99,21 @@ const ManifestationProvider: React.FC = ({ children }: any) => {
         created_at,
       });
 
-      Promise.all([createNewManifestation, createNewNotification]).then(() => {
-        Alert.alert(
-          'Operação realizada com sucesso.',
-          'Sua manifestação foi salva com sucesso!',
-          [
-            {
-              text: 'Ok',
-              onPress: () => RootNavigation.navigate('main'),
-            },
-          ],
-          { cancelable: false },
-        );
-      });
+      Promise.all([createNewManifestation, createNewNotification])
+        .then(() => {
+          Alert.alert(
+            'Operação realizada com sucesso.',
+            'Sua manifestação foi salva com sucesso!',
+            [
+              {
+                text: 'Ok',
+                onPress: () => RootNavigation.navigate('main'),
+              },
+            ],
+            { cancelable: false },
+          );
+        })
+        .finally(() => setLoadingManifestation(false));
     },
     [],
   );
@@ -80,8 +121,10 @@ const ManifestationProvider: React.FC = ({ children }: any) => {
   return (
     <ManifestationContext.Provider
       value={{
+        loadingManifestation,
         getAllManifestations,
         createManifestation,
+        deleteManifestation,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
 import { useAuth } from '../../hooks/auth';
 
 import {
@@ -18,11 +18,14 @@ import {
 const RecoverPassword: React.FC = () => {
   const navigation = useNavigation();
   const { forgotPassword } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
 
   const handleRecoverPassword = useCallback(
-    userEmail => {
-      forgotPassword(userEmail);
+    async userEmail => {
+      setLoading(true);
+      await forgotPassword(userEmail);
+      setLoading(false);
     },
     [forgotPassword],
   );
@@ -57,11 +60,19 @@ const RecoverPassword: React.FC = () => {
             onPress={() => handleRecoverPassword(email)}
             color="#fff"
             compact
+            disabled={loading}
           >
-            Recuperar Senha
+            {loading ? (
+              <ActivityIndicator animating color="#fff" />
+            ) : (
+              'Recuperar Senha'
+            )}
           </Button>
         </Form>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          disabled={loading}
+        >
           <GoBackText>Voltar</GoBackText>
         </TouchableOpacity>
       </Container>

@@ -9,7 +9,7 @@ export interface NotificationProps {
 }
 
 interface NotificationContextData {
-  getAllNotifications(): Promise<NotificationProps[]>;
+  getAllNotifications(userID: string): Promise<NotificationProps[]>;
 }
 
 const NotificationContext = createContext<NotificationContextData>(
@@ -17,19 +17,29 @@ const NotificationContext = createContext<NotificationContextData>(
 );
 
 const NotificationProvider: React.FC = ({ children }: any) => {
-  const getAllNotifications = useCallback(async () => {
-    const notifications = await database.ref('notifications').once('value');
-    const modifiedNotifications = Object.values(notifications.val()).map(
-      (current: NotificationProps) => {
-        Object.assign(current, {
-          dateFormatted: distanceToNow(current.created_at),
-        });
+  const getAllNotifications = useCallback(async userID => {
+    const notifications = await database
+      .ref()
+      .child('notifications')
+      .orderByChild('userID')
+      .equalTo(userID)
+      .once('value');
 
-        return current;
-      },
-    );
+    if (notifications.val()) {
+      const modifiedNotifications = Object.values(notifications.val()).map(
+        (current: NotificationProps) => {
+          Object.assign(current, {
+            dateFormatted: distanceToNow(current.created_at),
+          });
 
-    return modifiedNotifications;
+          return current;
+        },
+      );
+
+      return modifiedNotifications;
+    }
+
+    return [] as NotificationProps[];
   }, []);
 
   return (

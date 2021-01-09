@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { TouchableOpacity } from 'react-native';
-import { Appbar, List, Divider, Avatar } from 'react-native-paper';
+import { TouchableOpacity, Alert } from 'react-native';
+import { List, Divider, Avatar } from 'react-native-paper';
 import { useAuth } from '../../hooks/auth';
 import Header from '../../components/Header';
 import { AvatarContainer } from './styles';
@@ -24,7 +24,7 @@ const Profile: React.FC = () => {
       <Header title="Minha conta" />
 
       <AvatarContainer>
-        <Avatar.Text size={120} label="XD" />
+        <Avatar.Text size={120} label={user?.name?.charAt(0).toUpperCase()} />
       </AvatarContainer>
       <List.Section style={{ paddingHorizontal: 20 }}>
         <TouchableOpacity>
@@ -51,7 +51,26 @@ const Profile: React.FC = () => {
           />
         </TouchableOpacity>
         <Divider />
-        <TouchableOpacity onPress={() => handleChangePassword(user.email)}>
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert(
+              'Mudança de senha',
+              'Tem certeza que deseja solicitar a mudança de senha?',
+              [
+                {
+                  text: 'Cancelar',
+                  onPress: () => null,
+                  style: 'cancel',
+                },
+                {
+                  text: 'Confirmar',
+                  onPress: () => handleChangePassword(user.email),
+                },
+              ],
+              { cancelable: false },
+            )
+          }
+        >
           <List.Item
             left={() => <List.Icon icon="lock" />}
             title="Mudar Senha"

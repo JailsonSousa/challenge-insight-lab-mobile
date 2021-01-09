@@ -43,7 +43,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
     await auth
       .signInWithEmailAndPassword(email, password)
       .then(async res => {
-        const uid = res.user?.uid;
+        const uid = res.user?.uid as string;
         database
           .ref()
           .child(`users/${uid}`)
@@ -120,6 +120,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
   }, []);
 
   const signUp = useCallback(async ({ name, cpf, email, password }) => {
+    setLoadingAuth(true);
     auth
       .createUserWithEmailAndPassword(email, password)
       .then(async res => {
@@ -190,7 +191,8 @@ const AuthProvider: React.FC = ({ children }: any) => {
             break;
           }
         }
-      });
+      })
+      .finally(() => setLoadingAuth(false));
   }, []);
 
   const signOut = useCallback(async () => {

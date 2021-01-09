@@ -7,7 +7,7 @@ import {
   Platform,
   TextInput as TextInputRN,
 } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -28,7 +28,7 @@ const SignUp: React.FC = () => {
   const passwordInputRef = useRef<TextInputRN>(null);
 
   const navigation = useNavigation();
-  const { signUp } = useAuth();
+  const { signUp, loadingAuth } = useAuth();
   const [name, setName] = useState('');
   const [cpf, setCpf] = useState('');
   const [email, setEmail] = useState('');
@@ -121,11 +121,19 @@ const SignUp: React.FC = () => {
                 onPress={() => handleSignUp(name, cpf, email, password)}
                 color="#fff"
                 compact
+                disabled={loadingAuth}
               >
-                Criar
+                {loadingAuth ? (
+                  <ActivityIndicator animating color="#fff" />
+                ) : (
+                  'Criar'
+                )}
               </Button>
             </Form>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              disabled={loadingAuth}
+            >
               <GoBackText>Voltar</GoBackText>
             </TouchableOpacity>
           </Container>

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Appbar, Button } from 'react-native-paper';
+import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import {
   ManifestationProps,
   useManifestation,
@@ -20,7 +20,7 @@ import {
 const ManifestationConfirmation: React.FC = () => {
   const { goBack } = useNavigation();
   const { params } = useRoute();
-  const { createManifestation } = useManifestation();
+  const { createManifestation, loadingManifestation } = useManifestation();
   const [manifestation, setManifestation] = useState<
     ManifestationProps | undefined
   >({} as ManifestationProps);
@@ -40,7 +40,9 @@ const ManifestationConfirmation: React.FC = () => {
     <>
       <Header
         title="Registrar Manifestação"
-        backAction={<Appbar.BackAction onPress={goBack} />}
+        backAction={
+          <Appbar.BackAction onPress={goBack} disabled={loadingManifestation} />
+        }
       />
 
       <ScrollView contentContainerStyle={{ flex: 1 }}>
@@ -80,6 +82,7 @@ const ManifestationConfirmation: React.FC = () => {
           <Button
             mode="text"
             compact
+            disabled={loadingManifestation}
             onPress={() =>
               Alert.alert(
                 'Confirmação de manifestação',
@@ -87,7 +90,7 @@ const ManifestationConfirmation: React.FC = () => {
                 [
                   {
                     text: 'Cancelar',
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => null,
                     style: 'cancel',
                   },
                   {
@@ -99,7 +102,11 @@ const ManifestationConfirmation: React.FC = () => {
               )
             }
           >
-            Confirmar Envio
+            {loadingManifestation ? (
+              <ActivityIndicator animating color="#fff" />
+            ) : (
+              'Confirmar Envio'
+            )}
           </Button>
         </Container>
       </ScrollView>

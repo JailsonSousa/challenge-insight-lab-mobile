@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, SafeAreaView } from 'react-native';
-import { List, Divider, ActivityIndicator } from 'react-native-paper';
+import { List, Divider, ActivityIndicator, Caption } from 'react-native-paper';
 import { useNotification, NotificationProps } from '../../hooks/notification';
+import { useAuth } from '../../hooks/auth';
 import Header from '../../components/Header';
 
 const Notifications: React.FC = () => {
   const { getAllNotifications } = useNotification();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState<NotificationProps[]>(
     [] as NotificationProps[],
@@ -14,15 +16,14 @@ const Notifications: React.FC = () => {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const notificationsResponse = await getAllNotifications();
+      const notificationsResponse = await getAllNotifications(user.uid);
 
-      console.log(notificationsResponse);
       setNotifications(notificationsResponse);
       setLoading(false);
     }
 
     fetchData();
-  }, [getAllNotifications]);
+  }, [getAllNotifications, user.uid]);
 
   const renderItem = ({ item }) => (
     <>
@@ -48,14 +49,26 @@ const Notifications: React.FC = () => {
   return (
     <>
       <Header title="Notificações" />
-      <List.Section style={{ padding: 10 }}>
-        <FlatList
-          data={notifications}
-          renderItem={renderItem}
-          keyExtractor={item => item.uid}
-          contentContainerStyle={{ paddingBottom: 80 }}
-        />
-      </List.Section>
+
+      {!notifications ? (
+        <Caption
+          style={{
+            textAlign: 'center',
+            marginTop: 20,
+          }}
+        >
+          Nenhuma notificação para exibir até o momento...
+        </Caption>
+      ) : (
+        <List.Section style={{ padding: 10 }}>
+          <FlatList
+            data={notifications}
+            renderItem={renderItem}
+            keyExtractor={item => item.uid}
+            contentContainerStyle={{ paddingBottom: 80 }}
+          />
+        </List.Section>
+      )}
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { BottomNavigation } from 'react-native-paper';
 import Manifestations from '../Manifestations';
@@ -15,13 +15,16 @@ const Main: React.FC = () => {
   const [index, setIndex] = useState(0);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    // Hack to force refresh screen
+  const handleRefresh = useCallback(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       console.log('Refreshed!');
     });
     return unsubscribe;
   }, [navigation]);
+
+  useEffect(() => {
+    handleRefresh();
+  }, [handleRefresh]);
 
   const [routes] = React.useState([
     { key: 'manifestations', title: 'Manifestações', icon: 'view-list' },
@@ -41,6 +44,7 @@ const Main: React.FC = () => {
       onIndexChange={setIndex}
       renderScene={renderScene}
       sceneAnimationEnabled
+      onTabPress={handleRefresh}
     />
   );
 };

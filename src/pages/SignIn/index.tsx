@@ -72,6 +72,7 @@ const SignIn: React.FC = () => {
 
           <TouchableOpacity
             onPress={() => navigation.navigate('recoverpassword')}
+            disabled={loadingAuth}
           >
             <LostPasswordText>Esqueci a senha</LostPasswordText>
           </TouchableOpacity>
@@ -90,7 +91,10 @@ const SignIn: React.FC = () => {
             )}
           </Button>
         </Form>
-        <TouchableOpacity onPress={() => navigation.navigate('signup')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('signup')}
+          disabled={loadingAuth}
+        >
           <CreateAccountText>Crie sua conta aqui</CreateAccountText>
         </TouchableOpacity>
       </Container>
