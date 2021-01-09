@@ -8,6 +8,8 @@
  O presente desafio consiste na adaptação da interface gráfica da plataforma <a href="http://www.simplifique.gov.br/" target="_blank">Simplifique!</a> para o contexto de aplicações móveis.
 </p>
 
+Download do APK: [Clique aqui](https://drive.google.com/file/d/1TCKYpcVQT-Y2yGIeLXBWGKJLnT8_LYmw/view?usp=sharing)
+
 ## 💻 Pré-requisitos
 
 Antes de começar, verifique se você atendeu aos requisitos descritos no site do expo:
